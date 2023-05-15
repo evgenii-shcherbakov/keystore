@@ -1,6 +1,7 @@
 import { handler } from '@/shared/wrappers';
 import { NextRequest } from 'next/server';
-import { storageService } from '@/services';
+import { SecretsFile } from '@/types/models';
+import { ApplicationService } from '@/services';
 
 type RequestBody = {
   value?: number;
@@ -12,25 +13,36 @@ type RequestContext = {
   };
 };
 
-const getPath = (context: RequestContext): string => {
-  return `${context.params.application}/build-number.txt`;
-};
-
 export const GET = handler(async (request: NextRequest, _: unknown, context: RequestContext) => {
-  return new Response(await storageService.getAsString(getPath(context)));
+  const applicationService = new ApplicationService(context.params.application);
+
+  const { build } = await applicationService.getAppSecrets();
+
+  if (typeof build?.number !== 'number') {
+    throw new Error('Bad request: build number value is missing');
+  }
+
+  return new Response(build.number.toString());
 });
 
 export const PATCH = handler(
   async (request: NextRequest, body: RequestBody | null, context: RequestContext) => {
     const incrementValue: number = body?.value ?? 1;
+    const applicationService = new ApplicationService(context.params.application);
 
-    const path: string = getPath(context);
+    const secrets: Partial<SecretsFile> = await applicationService.getAppSecrets();
 
-    const buildNumber: string = (
-      +(await storageService.getAsString(path)) + incrementValue
-    ).toString();
+    if (!secrets.build?.number) {
+      throw new Error('Bad request: build number value is missing');
+    }
 
-    await storageService.save(path, buildNumber);
-    return new Response(buildNumber);
+    const buildNumber: number = secrets.build.number + incrementValue;
+
+    await applicationService.updateAppSecrets({
+      ...secrets,
+      build: { ...secrets.build, number: buildNumber },
+    });
+
+    return new Response(buildNumber.toString());
   },
 );

@@ -1,9 +1,8 @@
 import { handler } from '@/shared/wrappers';
 import { NextRequest, NextResponse } from 'next/server';
 import { Coroutine } from '@iipekolict/coroutine';
-import { storageService } from '@/services';
+import { ApplicationService, storageService } from '@/services';
 import { KeystoreType } from '@/constants/enums';
-import { getAppDirectory, getAppSecrets } from '@/shared/functions';
 import { DEFAULT_SIGN_KEYSTORE_PATH } from '@/constants/common';
 
 type RequestContext = {
@@ -17,15 +16,19 @@ type RequestBody = {
 };
 
 export const GET = handler(async (request: NextRequest, _: unknown, context: RequestContext) => {
-  const appDirectory: string = getAppDirectory(context.params.application);
+  const applicationService = new ApplicationService(context.params.application);
 
-  const { keystore } = await getAppSecrets(context.params.application);
+  const { keystore } = await applicationService.getAppSecretsSafe();
+
+  if (!keystore) {
+    throw new Error('Bad request: keystore value is missing');
+  }
 
   const defaultKeystoreLink: string = await storageService.getLink(DEFAULT_SIGN_KEYSTORE_PATH);
   const response: Record<string, object> = {};
 
   await Coroutine.launchArr(Object.keys(keystore), async (type: string) => {
-    const path: string = `${appDirectory}/keystore/${type}.keystore`;
+    const path: string = `${applicationService.appDirectory}/keystore/${type}.keystore`;
     const isExists: boolean = await storageService.isExists(path);
 
     response[type] = {
@@ -40,17 +43,17 @@ export const GET = handler(async (request: NextRequest, _: unknown, context: Req
 export const POST = handler(
   async (request: NextRequest, body: RequestBody | null, context: RequestContext) => {
     const type: KeystoreType = body?.type ?? KeystoreType.DEFAULT;
+    const applicationService = new ApplicationService(context.params.application);
 
-    const { keystore } = await getAppSecrets(context.params.application);
+    const { keystore } = await applicationService.getAppSecretsSafe();
 
-    const appDirectory: string = getAppDirectory(context.params.application);
-    const keystoreSecrets = keystore[type];
+    const keystoreSecrets = keystore?.[type];
 
     if (!keystoreSecrets) {
       throw new Error(`Bad request: ${type} keystore secrets is missing`);
     }
 
-    const filePath: string = `${appDirectory}/keystore/${type}.keystore`;
+    const filePath: string = `${applicationService.appDirectory}/keystore/${type}.keystore`;
     const isExists: boolean = await storageService.isExists(filePath);
 
     if (!isExists) {

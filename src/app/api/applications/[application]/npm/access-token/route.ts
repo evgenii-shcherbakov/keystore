@@ -1,6 +1,6 @@
 import { handler } from '@/shared/wrappers';
 import { NextRequest } from 'next/server';
-import { getAppSecrets } from '@/shared/functions';
+import { ApplicationService } from '@/services';
 
 type RequestContext = {
   params: {
@@ -9,6 +9,13 @@ type RequestContext = {
 };
 
 export const GET = handler(async (request: NextRequest, _: unknown, context: RequestContext) => {
-  const { NPM_ACCESS_TOKEN } = await getAppSecrets(context.params.application);
-  return new Response(NPM_ACCESS_TOKEN);
+  const applicationService = new ApplicationService(context.params.application);
+
+  const { credentials } = await applicationService.getAppSecretsSafe();
+
+  if (!credentials?.NPM_ACCESS_TOKEN) {
+    throw new Error('Bad request: NPM_ACCESS_TOKEN is not provided');
+  }
+
+  return new Response(credentials.NPM_ACCESS_TOKEN);
 });
