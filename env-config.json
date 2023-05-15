@@ -1,4 +1,7 @@
-{
-  "backend": [],
-  "frontend": []
-}
+[
+  "GOOGLE_PROJECT_ID",
+  "GOOGLE_PRIVATE_KEY",
+  "GOOGLE_CLIENT_EMAIL",
+  "GOOGLE_BUCKET_NAME",
+  "JWT_ACCESS_TOKEN"
+]
