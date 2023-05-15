@@ -36,9 +36,9 @@ jobs:
           projectName: '${{ env.APP_NAME }}'
           envVariableKeys: '${{ env.ENV_VARIABLES }}'
       - name: 'Install dependencies'
-        run: 'cd frontend && npm i'
+        run: 'npm i'
       - name: 'Build'
-        run: 'cd frontend && npm run build'
+        run: 'npm run build'
       - name: 'Deploy'
         uses: 'amondnet/vercel-action@v20'
         with:
