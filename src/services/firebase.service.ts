@@ -7,7 +7,7 @@ export class FirebaseService {
     this.application = admin.initializeApp({
       credential: admin.credential.cert({
         projectId: process.env.GOOGLE_PROJECT_ID,
-        privateKey: process.env.GOOGLE_PRIVATE_KEY,
+        privateKey: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/gm, '\n'),
         clientEmail: process.env.GOOGLE_CLIENT_EMAIL,
       }),
       storageBucket: process.env.GOOGLE_BUCKET_NAME,

@@ -19,7 +19,7 @@ env:
   JWT_ACCESS_TOKEN: '${{ secrets.JWT_ACCESS_TOKEN }}'
 
 jobs:
-  Backend:
+  Deploy:
     runs-on: 'ubuntu-latest'
 
     steps:
@@ -36,7 +36,7 @@ jobs:
           projectName: '${{ env.APP_NAME }}'
           envVariableKeys: '${{ env.ENV_VARIABLES }}'
       - name: 'Install dependencies'
-        run: 'npm i'
+        run: 'npm install'
       - name: 'Build'
         run: 'npm run build'
       - name: 'Deploy'
