@@ -2,83 +2,48 @@ name: 'Deploy'
 
 on:
   push:
-    tags:
-      - '*'
-#    branches:
-#      - 'main'
+    branches:
+      - 'main'
 
 env:
-  BACKEND_NAME: 'keystore-backend'
-  #  FRONTEND_NAME: 'keystore-frontend'
+  APP_NAME: 'keystore'
 
   VERCEL_TOKEN: '${{ secrets.VERCEL_TOKEN }}'
-  VERCEL_BACKEND_ORGANIZATION_ID: '${{ secrets.VERCEL_BACKEND_ORGANIZATION_ID }}'
-  VERCEL_BACKEND_PROJECT_ID: '${{ secrets.VERCEL_BACKEND_PROJECT_ID }}'
-  #  VERCEL_FRONTEND_ORGANIZATION_ID: '${{ secrets.VERCEL_FRONTEND_ORGANIZATION_ID }}'
-  #  VERCEL_FRONTEND_PROJECT_ID: '${{ secrets.VERCEL_FRONTEND_PROJECT_ID }}'
+  VERCEL_ORGANIZATION_ID: '${{ secrets.VERCEL_ORGANIZATION_ID }}'
+  VERCEL_PROJECT_ID: '${{ secrets.VERCEL_PROJECT_ID }}'
 
-#  GREETINGS: '${{ secrets.GREETINGS }}'
+  GOOGLE_PROJECT_ID: '${{ secrets.GOOGLE_PROJECT_ID }}'
+  GOOGLE_PRIVATE_KEY: '${{ secrets.GOOGLE_PRIVATE_KEY }}'
+  GOOGLE_CLIENT_EMAIL: '${{ secrets.GOOGLE_CLIENT_EMAIL }}'
+  GOOGLE_BUCKET_NAME: '${{ secrets.GOOGLE_BUCKET_NAME }}'
+  JWT_ACCESS_TOKEN: '${{ secrets.JWT_ACCESS_TOKEN }}'
 
 jobs:
-  Backend:
+  Deploy:
     runs-on: 'ubuntu-latest'
 
     steps:
       - uses: 'actions/checkout@v3'
-#      - uses: 'actions/setup-node@v3'
-#        with:
-#          node-version: 18
-#      - name: 'Setup environment'
-#        run: 'chmod +x scripts/setup_environment.sh && scripts/setup_environment.sh'
-#      - name: 'Set backend environment variables'
-#        uses: 'dkershner6/vercel-set-env-action@v1'
-#        with:
-#          token: '${{ env.VERCEL_TOKEN }}'
-#          projectName: '${{ env.BACKEND_NAME }}'
-#          envVariableKeys: '${{ env.BACKEND_ENV_VARIABLES }}'
-#      - name: 'Install backend dependencies'
-#        run: 'cd server && npm i'
-#      - name: 'Build backend'
-#        run: 'cd server && npm run build'
-#      - name: 'Deploy backend'
-#        uses: 'amondnet/vercel-action@v20'
-#        with:
-#          vercel-token: '${{ env.VERCEL_TOKEN }}'
-#          vercel-args: '--prod --yes'
-#          vercel-org-id: '${{ env.VERCEL_BACKEND_ORGANIZATION_ID }}'
-#          vercel-project-id: '${{ env.VERCEL_BACKEND_PROJECT_ID }}'
-#          working-directory: './backend'
-#      - name: 'Get backend URL'
-#        id: 'backend-url'
-#        uses: 'justincase-jp/vercel-preview-url-alias@0.2.1'
-#        with:
-#          vercel_access_token: '${{ env.VERCEL_TOKEN }}'
-#          vercel_project_id: '${{ env.VERCEL_BACKEND_PROJECT_ID }}'
-#      - name: 'Check backend build status'
-#        run: '[[ ${{ steps.backend-url.outputs.status }} == "READY" ]] && echo Success build! || exit 1'
-#      - name: 'Inject backend url to github environment'
-#        run: 'echo NEXT_PUBLIC_BACKEND_URL=${{ steps.backend-url.outputs.preview_url_origin }} >> $GITHUB_ENV'
-#      - name: 'Check backend url'
-#        run: 'echo ${{ env.NEXT_PUBLIC_BACKEND_URL }}'
-#      - name: 'Inject backend url to client environment variables'
-#        uses: 'dkershner6/vercel-set-env-action@v1'
-#        with:
-#          token: '${{ secrets.VERCEL_TOKEN }}'
-#          projectName: '${{ env.FRONTEND_NAME }}'
-#          envVariableKeys: '${{ env.FRONTEND_ENV_VARIABLES }}'
-
-#  Frontend:
-#    runs-on: 'ubuntu-latest'
-#    needs:
-#      - 'Backend'
-#
-#    steps:
-#      - uses: 'actions/checkout@v3'
-#      - name: 'Deploy frontend'
-#        uses: 'amondnet/vercel-action@v20'
-#        with:
-#          vercel-token: '${{ env.VERCEL_TOKEN }}'
-#          vercel-args: '--prod --yes'
-#          vercel-org-id: '${{ env.VERCEL_FRONTEND_ORGANIZATION_ID }}'
-#          vercel-project-id: '${{ env.VERCEL_FRONTEND_PROJECT_ID }}'
-#          working-directory: './frontend'
+      - uses: 'actions/setup-node@v3'
+        with:
+          node-version: 18
+      - name: 'Setup environment'
+        run: 'chmod +x scripts/setup_environment.sh && scripts/setup_environment.sh'
+      - name: 'Set environment variables'
+        uses: 'dkershner6/vercel-set-env-action@v1'
+        with:
+          token: '${{ env.VERCEL_TOKEN }}'
+          projectName: '${{ env.APP_NAME }}'
+          envVariableKeys: '${{ env.ENV_VARIABLES }}'
+      - name: 'Install dependencies'
+        run: 'npm install'
+      - name: 'Build'
+        run: 'npm run build'
+      - name: 'Deploy'
+        uses: 'amondnet/vercel-action@v20'
+        with:
+          vercel-token: '${{ env.VERCEL_TOKEN }}'
+          vercel-args: '--prod --yes'
+          vercel-org-id: '${{ env.VERCEL_ORGANIZATION_ID }}'
+          vercel-project-id: '${{ env.VERCEL_PROJECT_ID }}'
+          working-directory: '.'
