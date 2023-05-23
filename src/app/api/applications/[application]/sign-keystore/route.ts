@@ -1,6 +1,6 @@
 import { handler } from '@/shared/wrappers';
 import { NextRequest, NextResponse } from 'next/server';
-import { Coroutine } from '@iipekolict/coroutine';
+import { Coroutine } from '@evgenii-shcherbakov/coroutine';
 import { ApplicationService, storageService } from '@/services';
 import { KeystoreType } from '@/constants/enums';
 import { DEFAULT_SIGN_KEYSTORE_PATH } from '@/constants/common';

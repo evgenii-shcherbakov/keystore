@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@iipekolict/coroutine": "^1.0.27",
+    "@evgenii-shcherbakov/coroutine": "^1.0.30",
     "dotenv": "^16.0.3",
     "firebase": "^9.21.0",
     "firebase-admin": "^11.8.0",

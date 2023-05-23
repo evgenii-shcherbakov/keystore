@@ -1,7 +1,7 @@
 import { handler } from '@/shared/wrappers';
 import { NextRequest, NextResponse } from 'next/server';
 import { storageService } from '@/services';
-import { Coroutine } from '@iipekolict/coroutine';
+import { Coroutine } from '@evgenii-shcherbakov/coroutine';
 
 enum Target {
   PROJECT = 'project.json',

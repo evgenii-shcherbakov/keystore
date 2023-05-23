@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { storageService } from '@/services';
 import { handler } from '@/shared/wrappers';
 import { parse } from 'dotenv';
-import { Coroutine } from '@iipekolict/coroutine';
+import { Coroutine } from '@evgenii-shcherbakov/coroutine';
 
 enum Format {
   RAW = 'raw',
