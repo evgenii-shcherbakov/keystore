@@ -5,7 +5,7 @@ import { SecretsFile } from '@/types/models';
 
 enum Format {
   JSON = 'json',
-  MAVEN_ENV_STRING = 'maven-env-string',
+  GRADLE_PROPERTIES = 'gradle-properties',
 }
 
 type RequestContext = {
@@ -20,16 +20,16 @@ type RequestBody = {
 
 type Credentials = SecretsFile['publishing']['mavenCentral'];
 
-const parseForMavenPublishing = (credentials: Credentials): string => {
+const convertToGradleProperties = (credentials: Credentials): string => {
   const rows: string[] = [
-    `ORG_GRADLE_PROJECT_mavenCentralUsername=${credentials.SONATYPE_USERNAME}`,
-    `ORG_GRADLE_PROJECT_mavenCentralPassword=${credentials.SONATYPE_PASSWORD}`,
-    `ORG_GRADLE_PROJECT_signingInMemoryKeyId=${credentials.GPG_KEY_ID}`,
-    `ORG_GRADLE_PROJECT_signingInMemoryKeyPassword=${credentials.GPG_KEY_PASSWORD}`,
-    `ORG_GRADLE_PROJECT_signingInMemoryKey=${credentials.GPG_KEY}`,
+    `mavenCentralUsername=${credentials.SONATYPE_USERNAME}`,
+    `mavenCentralPassword=${credentials.SONATYPE_PASSWORD}`,
+    `signingInMemoryKeyId=${credentials.GPG_KEY_ID}`,
+    `signingInMemoryKeyPassword=${credentials.GPG_KEY_PASSWORD}`,
+    `signingInMemoryKey=${credentials.GPG_KEY}`,
   ];
 
-  return rows.join(' ');
+  return rows.join('\n');
 };
 
 const generateResponse = (
@@ -37,8 +37,8 @@ const generateResponse = (
   format: Format = Format.JSON,
 ): Response | NextResponse => {
   switch (format) {
-    case Format.MAVEN_ENV_STRING:
-      return new Response(parseForMavenPublishing(credentials));
+    case Format.GRADLE_PROPERTIES:
+      return new Response(convertToGradleProperties(credentials));
     case Format.JSON:
     default:
       return NextResponse.json(credentials);
